@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DANTEETECH Solution Arena</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Notification Container -->
+  <div id="notification" class="notification">
+    <i class="fas fa-bell"></i>
+    <div id="notification-text">Notification message</div>
+  </div>
+
+  <div class="app-container">
+    <header>
+      <div class="logo">
+        <i class="fas fa-laptop-code"></i>
+        <h1>DANTEETECH Solution Arena</h1>
+      </div>
+      <p>Your trusted tech marketplace for innovative solutions</p>
+    </header>
+
+    <!-- USER AUTHENTICATION SECTION -->
+    <section id="authSection">
+      <h2><i class="fas fa-user-plus"></i> Customer Registration</h2>
+      <input id="regUser" placeholder="New Username" />
+      <input id="regPass" type="password" placeholder="New Password" />
+      <button onclick="registerUser()"><i class="fas fa-user-plus"></i> Register</button>
+
+      <hr />
+
+      <h2><i class="fas fa-sign-in-alt"></i> Customer Login</h2>
+      <input id="loginUser" placeholder="Username" />
+      <input id="loginPass" type="password" placeholder="Password" />
+      <button onclick="loginCustomer()"><i class="fas fa-sign-in-alt"></i> Login</button>
+
+      <hr />
+
+      <h2><i class="fas fa-user-shield"></i> Admin Access</h2>
+      <div class="admin-login">
+        <button onclick="adminLogin()"><i class="fas fa-user-shield"></i> Admin Login</button>
+      </div>
+    </section>
+
+    <!-- CUSTOMER PORTAL -->
+    <section id="customerPortal" style="display:none;">
+      <h2>Welcome to Your Dashboard, <span id="welcomeUser"></span></h2>
+
+      <nav class="tabs">
+        <button class="active" onclick="showCustomerPage('products')"><i class="fas fa-shopping-cart"></i> Products</button>
+        <button onclick="showCustomerPage('offers')"><i class="fas fa-hand-holding-usd"></i> My Offers</button>
+        <button onclick="showCustomerPage('orders')"><i class="fas fa-box-open"></i> My Orders</button>
+        <button onclick="showCustomerPage('chat')">
+          <i class="fas fa-comments"></i> Live Chat 
+          <span id="chatNotifCust" class="badge"></span>
+        </button>
+        <button onclick="logoutCustomer()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      </nav>
+
+      <!-- Products Page -->
+      <section id="products" class="tab-content">
+        <h3>Available Products</h3>
+        <div class="grid-controls">
+          <input id="searchProduct" placeholder="Search products…" oninput="renderProducts()" />
+        </div>
+        <div id="productsGrid" class="grid-view"></div>
+      </section>
+
+      <!-- Offers Page -->
+      <section id="offers" class="tab-content" style="display:none;">
+        <h3>My Submitted Offers</h3>
+        <div id="offersGrid" class="grid-view"></div>
+      </section>
+
+      <!-- Orders Page -->
+      <section id="orders" class="tab-content" style="display:none;">
+        <h3>My Order Status</h3>
+        <div id="ordersGrid" class="grid-view"></div>
+      </section>
+
+      <!-- Chat Page -->
+      <section id="chat" class="tab-content" style="display:none;">
+        <h3>Chat with Admin</h3>
+        <div class="chat-container" id="chatContainer"></div>
+        <div class="chat-input-area">
+          <input id="chatInput" placeholder="Type a message…" onkeydown="if(event.key==='Enter') sendChat()" />
+          <button onclick="sendChat()"><i class="fas fa-paper-plane"></i> Send</button>
+        </div>
+        <div class="contact-info">
+          <p><strong>Contact Us:</strong></p>
+          <p><i class="fas fa-phone"></i> Tel: +2348188113355, +2347063917218</p>
+          <p><i class="fas fa-envelope"></i> Email: danteetechsolutionarena@gmail.com</p>
+        </div>
+      </section>
+    </section>
+
+    <!-- ADMIN PORTAL -->
+    <section id="adminPortal" style="display:none;">
+      <h2>Admin Control Panel</h2>
+      <button onclick="logoutAdmin()" style="position: absolute; top: 20px; right: 20px;"><i class="fas fa-sign-out-alt"></i> Logout Admin</button>
+
+      <nav class="tabs">
+        <button class="active" onclick="showAdminPage('manageProducts')"><i class="fas fa-boxes"></i> Manage Products</button>
+        <button onclick="showAdminPage('pendingOffers')"><i class="fas fa-clock"></i> Review Offers</button>
+        <button onclick="showAdminPage('supplyTracking')"><i class="fas fa-chart-line"></i> Supply Tracking</button>
+        <button onclick="showAdminPage('adminChat')">
+          <i class="fas fa-comments"></i> Chat 
+          <span id="chatNotifAdmin" class="badge"></span>
+        </button>
+      </nav>
+
+      <!-- Manage Products -->
+      <section id="manageProducts" class="tab-content">
+        <h3>Product Catalog</h3>
+        <div class="grid-controls">
+          <input id="newProdName" placeholder="Product Name" />
+          <input id="newProdPrice" type="number" placeholder="Price" />
+          <input id="newProdImage" type="file" accept="image/*" multiple />
+          <button onclick="adminAddProduct()"><i class="fas fa-plus"></i> Add Product</button>
+        </div>
+        <div id="adminProductsGrid" class="grid-view"></div>
+      </section>
+
+      <!-- Pending Offers -->
+      <section id="pendingOffers" class="tab-content" style="display:none;">
+        <h3>Pending Offers</h3>
+        <div id="adminOffersGrid" class="grid-view"></div>
+      </section>
+
+      <!-- Supply Tracking -->
+      <section id="supplyTracking" class="tab-content" style="display:none;">
+        <h3>Track Supply Progress</h3>
+        <div id="adminSupplyGrid" class="grid-view"></div>
+      </section>
+
+      <!-- Admin Chat -->
+      <section id="adminChat" class="tab-content" style="display:none;">
+        <h3>Customer Chat</h3>
+        <label for="adminChatUserSelect">Select Customer:</label>
+        <select id="adminChatUserSelect" onchange="renderAdminChat()"></select>
+        <div class="chat-container" id="adminChatContainer"></div>
+        <div class="chat-input-area">
+          <input id="adminChatInput" placeholder="Type a reply…" onkeydown="if(event.key==='Enter') adminSendChat()" />
+          <button onclick="adminSendChat()"><i class="fas fa-paper-plane"></i> Send</button>
+        </div>
+      </section>
+    </section>
+
+    <!-- Image Modal Viewer -->
+    <div id="imgModal" class="modal">
+      <span class="modal-close" onclick="closeModal()">&times;</span>
+      <img id="modalImage" class="modal-content" />
+    </div>
+  </div>
+
+  <!-- ✅ FIXED: Corrected script filename -->
+  <script src="script.js"></script>
+</body>
+</html>
