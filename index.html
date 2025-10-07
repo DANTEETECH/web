@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a3a6c">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>DANTEETECH Solution Arena</title>
@@ -158,5 +160,13 @@
 
   <!-- ✅ FIXED: Corrected script filename -->
   <script src="script.js"></script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log('Service Worker registered successfully'))
+      .catch(error => console.log('Service Worker registration failed:', error));
+  }
+</script>
 </body>
 </html>
+
