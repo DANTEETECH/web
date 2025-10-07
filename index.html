@@ -1,172 +1,346 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#1a3a6c">
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DANTEETECH Solution Arena</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DANTEETECH Solution Arena</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* ====== General Styles ====== */
+body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f5f5f5; color: #333; }
+.app-container { max-width: 1200px; margin: auto; padding: 20px; }
+/* Header */
+header { text-align: center; margin-bottom: 20px; }
+header h1 { margin: 0; font-size: 2rem; }
+header p { margin: 5px 0; color: #555; }
+/* Inputs & Buttons */
+input, button, select { padding: 8px; margin: 5px 0; width: 100%; max-width: 300px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
+button { cursor: pointer; background-color: #007bff; color: white; border: none; transition: 0.2s; }
+button:hover { background-color: #0056b3; }
+/* Tabs */
+.tabs { margin: 10px 0; }
+.tabs button { margin-right: 5px; padding: 10px 15px; background-color: #e0e0e0; border-radius: 5px; border: none; cursor: pointer; transition: 0.2s; }
+.tabs button.active, .tabs button:hover { background-color: #007bff; color: white; }
+/* Tab Content */
+.tab-content { margin-top: 15px; }
+/* Grid Views */
+.grid-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+.product-card { background: #fff; padding: 10px; border-radius: 5px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s; }
+.product-card:hover { transform: translateY(-2px); }
+.product-card img { max-width: 100%; cursor: pointer; border-radius: 5px; }
+/* Chat */
+.chat-container { max-height: 300px; overflow-y: auto; background: #fff; padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 10px; }
+.chat-message { padding: 5px 10px; margin: 5px 0; border-radius: 10px; word-wrap: break-word; }
+.chat-message.user { background: #d1ffd6; text-align: left; }
+.chat-message.admin { background: #d6e0ff; text-align: left; }
+.chat-message .time { display: block; font-size: 0.7rem; color: #555; margin-top: 2px; }
+.chat-input-area { display: flex; gap: 5px; }
+.chat-input-area input { flex: 1; border-radius: 5px; border: 1px solid #ccc; }
+.chat-input-area button { padding: 8px 15px; border-radius: 5px; }
+/* Modal Image Viewer */
+.modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.8); justify-content:center; align-items:center; }
+.modal-content { max-width: 90%; max-height: 90%; border-radius: 5px; }
+.modal-close { position:absolute; top:10px; right:20px; color:#fff; font-size:2rem; cursor:pointer; }
+/* Responsive */
+@media (max-width: 768px) {
+    .grid-view { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+    .tabs button { margin-bottom: 5px; width: 100%; }
+}
+</style>
 </head>
 <body>
-  <!-- Notification Container -->
-  <div id="notification" class="notification">
-    <i class="fas fa-bell"></i>
-    <div id="notification-text">Notification message</div>
-  </div>
+<div class="app-container">
+<header>
+  <i class="fas fa-laptop-code fa-2x"></i>
+  <h1>DANTEETECH Solution Arena</h1>
+  <p>Your trusted tech marketplace for innovative solutions</p>
+</header>
 
-  <div class="app-container">
-    <header>
-      <div class="logo">
-        <i class="fas fa-laptop-code"></i>
-        <h1>DANTEETECH Solution Arena</h1>
-      </div>
-      <p>Your trusted tech marketplace for innovative solutions</p>
-    </header>
+<!-- USER AUTHENTICATION -->
+<section id="authSection">
+  <h2><i class="fas fa-user-plus"></i> Register</h2>
+  <input id="regUser" placeholder="New Username">
+  <input id="regPass" type="password" placeholder="New Password">
+  <button onclick="registerUser()"><i class="fas fa-user-plus"></i> Register</button>
+  <hr>
+  <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
+  <input id="loginUser" placeholder="Username">
+  <input id="loginPass" type="password" placeholder="Password">
+  <button onclick="loginCustomer()"><i class="fas fa-sign-in-alt"></i> Login</button>
+  <hr>
+  <h2><i class="fas fa-user-shield"></i> Admin</h2>
+  <button onclick="adminLogin()"><i class="fas fa-user-shield"></i> Admin Login</button>
+</section>
 
-    <!-- USER AUTHENTICATION SECTION -->
-    <section id="authSection">
-      <h2><i class="fas fa-user-plus"></i> Customer Registration</h2>
-      <input id="regUser" placeholder="New Username" />
-      <input id="regPass" type="password" placeholder="New Password" />
-      <button onclick="registerUser()"><i class="fas fa-user-plus"></i> Register</button>
+<!-- CUSTOMER PORTAL -->
+<section id="customerPortal" style="display:none;">
+  <h2>Welcome, <span id="welcomeUser"></span></h2>
+  <nav class="tabs">
+    <button class="active" onclick="showCustomerPage('products')"><i class="fas fa-shopping-cart"></i> Products</button>
+    <button onclick="showCustomerPage('offers')"><i class="fas fa-hand-holding-usd"></i> My Offers</button>
+    <button onclick="showCustomerPage('orders')"><i class="fas fa-box-open"></i> My Orders</button>
+    <button onclick="showCustomerPage('chat')"><i class="fas fa-comments"></i> Live Chat</button>
+    <button onclick="logoutCustomer()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </nav>
 
-      <hr />
+  <section id="products" class="tab-content">
+    <h3>Products</h3>
+    <input id="searchProduct" placeholder="Search products…" oninput="renderProducts()">
+    <div id="productsGrid" class="grid-view"></div>
+  </section>
 
-      <h2><i class="fas fa-sign-in-alt"></i> Customer Login</h2>
-      <input id="loginUser" placeholder="Username" />
-      <input id="loginPass" type="password" placeholder="Password" />
-      <button onclick="loginCustomer()"><i class="fas fa-sign-in-alt"></i> Login</button>
+  <section id="offers" class="tab-content" style="display:none;">
+    <h3>My Offers</h3>
+    <div id="offersGrid" class="grid-view"></div>
+  </section>
 
-      <hr />
+  <section id="orders" class="tab-content" style="display:none;">
+    <h3>My Orders</h3>
+    <div id="ordersGrid" class="grid-view"></div>
+  </section>
 
-      <h2><i class="fas fa-user-shield"></i> Admin Access</h2>
-      <div class="admin-login">
-        <button onclick="adminLogin()"><i class="fas fa-user-shield"></i> Admin Login</button>
-      </div>
-    </section>
-
-    <!-- CUSTOMER PORTAL -->
-    <section id="customerPortal" style="display:none;">
-      <h2>Welcome to Your Dashboard, <span id="welcomeUser"></span></h2>
-
-      <nav class="tabs">
-        <button class="active" onclick="showCustomerPage('products')"><i class="fas fa-shopping-cart"></i> Products</button>
-        <button onclick="showCustomerPage('offers')"><i class="fas fa-hand-holding-usd"></i> My Offers</button>
-        <button onclick="showCustomerPage('orders')"><i class="fas fa-box-open"></i> My Orders</button>
-        <button onclick="showCustomerPage('chat')">
-          <i class="fas fa-comments"></i> Live Chat 
-          <span id="chatNotifCust" class="badge"></span>
-        </button>
-        <button onclick="logoutCustomer()"><i class="fas fa-sign-out-alt"></i> Logout</button>
-      </nav>
-
-      <!-- Products Page -->
-      <section id="products" class="tab-content">
-        <h3>Available Products</h3>
-        <div class="grid-controls">
-          <input id="searchProduct" placeholder="Search products…" oninput="renderProducts()" />
-        </div>
-        <div id="productsGrid" class="grid-view"></div>
-      </section>
-
-      <!-- Offers Page -->
-      <section id="offers" class="tab-content" style="display:none;">
-        <h3>My Submitted Offers</h3>
-        <div id="offersGrid" class="grid-view"></div>
-      </section>
-
-      <!-- Orders Page -->
-      <section id="orders" class="tab-content" style="display:none;">
-        <h3>My Order Status</h3>
-        <div id="ordersGrid" class="grid-view"></div>
-      </section>
-
-      <!-- Chat Page -->
-      <section id="chat" class="tab-content" style="display:none;">
-        <h3>Chat with Admin</h3>
-        <div class="chat-container" id="chatContainer"></div>
-        <div class="chat-input-area">
-          <input id="chatInput" placeholder="Type a message…" onkeydown="if(event.key==='Enter') sendChat()" />
-          <button onclick="sendChat()"><i class="fas fa-paper-plane"></i> Send</button>
-        </div>
-        <div class="contact-info">
-          <p><strong>Contact Us:</strong></p>
-          <p><i class="fas fa-phone"></i> Tel: +2348188113355, +2347063917218</p>
-          <p><i class="fas fa-envelope"></i> Email: danteetechsolutionarena@gmail.com</p>
-        </div>
-      </section>
-    </section>
-
-    <!-- ADMIN PORTAL -->
-    <section id="adminPortal" style="display:none;">
-      <h2>Admin Control Panel</h2>
-      <button onclick="logoutAdmin()" style="position: absolute; top: 20px; right: 20px;"><i class="fas fa-sign-out-alt"></i> Logout Admin</button>
-
-      <nav class="tabs">
-        <button class="active" onclick="showAdminPage('manageProducts')"><i class="fas fa-boxes"></i> Manage Products</button>
-        <button onclick="showAdminPage('pendingOffers')"><i class="fas fa-clock"></i> Review Offers</button>
-        <button onclick="showAdminPage('supplyTracking')"><i class="fas fa-chart-line"></i> Supply Tracking</button>
-        <button onclick="showAdminPage('adminChat')">
-          <i class="fas fa-comments"></i> Chat 
-          <span id="chatNotifAdmin" class="badge"></span>
-        </button>
-      </nav>
-
-      <!-- Manage Products -->
-      <section id="manageProducts" class="tab-content">
-        <h3>Product Catalog</h3>
-        <div class="grid-controls">
-          <input id="newProdName" placeholder="Product Name" />
-          <input id="newProdPrice" type="number" placeholder="Price" />
-          <input id="newProdImage" type="file" accept="image/*" multiple />
-          <button onclick="adminAddProduct()"><i class="fas fa-plus"></i> Add Product</button>
-        </div>
-        <div id="adminProductsGrid" class="grid-view"></div>
-      </section>
-
-      <!-- Pending Offers -->
-      <section id="pendingOffers" class="tab-content" style="display:none;">
-        <h3>Pending Offers</h3>
-        <div id="adminOffersGrid" class="grid-view"></div>
-      </section>
-
-      <!-- Supply Tracking -->
-      <section id="supplyTracking" class="tab-content" style="display:none;">
-        <h3>Track Supply Progress</h3>
-        <div id="adminSupplyGrid" class="grid-view"></div>
-      </section>
-
-      <!-- Admin Chat -->
-      <section id="adminChat" class="tab-content" style="display:none;">
-        <h3>Customer Chat</h3>
-        <label for="adminChatUserSelect">Select Customer:</label>
-        <select id="adminChatUserSelect" onchange="renderAdminChat()"></select>
-        <div class="chat-container" id="adminChatContainer"></div>
-        <div class="chat-input-area">
-          <input id="adminChatInput" placeholder="Type a reply…" onkeydown="if(event.key==='Enter') adminSendChat()" />
-          <button onclick="adminSendChat()"><i class="fas fa-paper-plane"></i> Send</button>
-        </div>
-      </section>
-    </section>
-
-    <!-- Image Modal Viewer -->
-    <div id="imgModal" class="modal">
-      <span class="modal-close" onclick="closeModal()">&times;</span>
-      <img id="modalImage" class="modal-content" />
+  <section id="chat" class="tab-content" style="display:none;">
+    <h3>Chat with Admin</h3>
+    <div class="chat-container" id="chatContainer"></div>
+    <div class="chat-input-area">
+      <input id="chatInput" placeholder="Type a message…" onkeydown="if(event.key==='Enter') sendChat()">
+      <button onclick="sendChat()"><i class="fas fa-paper-plane"></i> Send</button>
     </div>
-  </div>
+  </section>
+</section>
 
-  <!-- ✅ FIXED: Corrected script filename -->
-  <script src="script.js"></script>
-  <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js')
-      .then(() => console.log('Service Worker registered successfully'))
-      .catch(error => console.log('Service Worker registration failed:', error));
-  }
-</script>
-</body>
-</html>
+<!-- ADMIN PORTAL -->
+<section id="adminPortal" style="display:none;">
+  <h2>Admin Control Panel</h2>
+  <button onclick="logoutAdmin()" style="position:absolute; top:20px; right:20px;">Logout</button>
 
+  <nav class="tabs">
+    <button class="active" onclick="showAdminPage('manageProducts')"><i class="fas fa-boxes"></i> Products</button>
+    <button onclick="showAdminPage('pendingOffers')"><i class="fas fa-clock"></i> Activities</button>
+    <button onclick="showAdminPage('adminChat')"><i class="fas fa-comments"></i> Chat</button>
+  </nav>
+
+  <section id="manageProducts" class="tab-content">
+    <h3>Add Product</h3>
+    <input id="newProdName" placeholder="Product Name">
+    <input id="newProdPrice" type="number" placeholder="Price">
+    <input id="newProdImage" type="file" accept="image/*">
+    <button onclick="adminAddProduct()"><i class="fas fa-plus"></i> Add Product</button>
+    <div id="adminProductsGrid" class="grid-view"></div>
+  </section>
+
+  <section id="pendingOffers" class="tab-content" style="display:none;">
+    <h3>User Activities</h3>
+    <div id="adminOffersGrid"></div>
+  </section>
+
+  <section id="adminChat" class="tab-content" style="display:none;">
+    <h3>Chat with Users</h3>
+    <select id="adminChatUserSelect" onchange="renderAdminChat()"></select>
+    <div class="chat-container" id="adminChatContainer"></div>
+    <div class="chat-input-area">
+      <input id="adminChatInput" placeholder="Type reply…" onkeydown="if(event.key==='Enter') adminSendChat()">
+      <button onclick="adminSendChat()"><i class="fas fa-paper-plane"></i> Send</button>
+    </div>
+  </section>
+</section>
+
+<!-- Image Modal -->
+<div id="imgModal" class="modal">
+  <span class="modal-close" onclick="closeModal()">&times;</span>
+  <img id="modalImage" class="modal-content">
+</div>
+
+<script>
+// ====== Storage Keys ======
+const USERS_KEY = "DSA_USERS";
+const PRODUCTS_KEY = "DSA_PRODUCTS";
+const ACTIVITIES_KEY = "DSA_ACTIVITIES";
+const CHATS_KEY = "DSA_CHATS";
+
+// ====== Tab Functions ======
+function showCustomerPage(id){
+  document.querySelectorAll('#customerPortal .tab-content').forEach(s=>s.style.display='none');
+  document.getElementById(id).style.display='block';
+}
+function showAdminPage(id){
+  document.querySelectorAll('#adminPortal .tab-content').forEach(s=>s.style.display='none');
+  document.getElementById(id).style.display='block';
+}
+
+// ====== Registration/Login ======
+function registerUser(){
+  const username=document.getElementById("regUser").value.trim();
+  const password=document.getElementById("regPass").value;
+  if(!username||!password)return alert("Fill username and password!");
+  let users=JSON.parse(localStorage.getItem(USERS_KEY))||{};
+  if(users[username])return alert("Username already exists!");
+  users[username]={password,activities:[],orders:[],offers:[]};
+  localStorage.setItem(USERS_KEY,JSON.stringify(users));
+  alert("User registered successfully!");
+}
+
+function loginCustomer(){
+  const username=document.getElementById("loginUser").value.trim();
+  const password=document.getElementById("loginPass").value;
+  let users=JSON.parse(localStorage.getItem(USERS_KEY))||{};
+  if(!users[username]||users[username].password!==password)return alert("Invalid login!");
+  localStorage.setItem("DSA_CURRENT_USER",username);
+  document.getElementById("authSection").style.display="none";
+  document.getElementById("customerPortal").style.display="block";
+  document.getElementById("welcomeUser").innerText=username;
+  renderProducts();
+  renderUserActivities(username);
+  initUserChat();
+}
+
+function adminLogin(){
+  let adminPass=prompt("Enter admin password");
+  if(adminPass!=="admin123")return alert("Incorrect password!");
+  document.getElementById("authSection").style.display="none";
+  document.getElementById("adminPortal").style.display="block";
+  renderAdminProducts();
+  renderAdminActivities();
+  initAdminChat();
+}
+
+// ====== Logout ======
+function logoutCustomer(){localStorage.removeItem("DSA_CURRENT_USER"); location.reload();}
+function logoutAdmin(){location.reload();}
+
+// ====== Products ======
+function renderProducts(){
+  const productsGrid=document.getElementById("productsGrid");
+  const search=document.getElementById("searchProduct").value.toLowerCase();
+  const products=JSON.parse(localStorage.getItem(PRODUCTS_KEY))||[];
+  productsGrid.innerHTML="";
+  products.filter(p=>p.name.toLowerCase().includes(search)).forEach(p=>{
+    const div=document.createElement("div");
+    div.classList.add("product-card");
+    div.innerHTML=`<img src="${p.image}" onclick="viewImage('${p.image}')"/><p>${p.name}</p><p>$${p.price}</p><button onclick="makeOffer('${p.name}',${p.price})">Make Offer</button>`;
+    productsGrid.appendChild(div);
+  });
+}
+
+function adminAddProduct(){
+  const name=document.getElementById("newProdName").value;
+  const price=document.getElementById("newProdPrice").value;
+  const fileInput=document.getElementById("newProdImage");
+  if(!name||!price||!fileInput.files.length)return alert("Fill all product fields");
+  const reader=new FileReader();
+  reader.onload=function(e){
+    let products=JSON.parse(localStorage.getItem(PRODUCTS_KEY))||[];
+    products.push({name,price,image:e.target.result});
+    localStorage.setItem(PRODUCTS_KEY,JSON.stringify(products));
+    renderProducts();
+    renderAdminProducts();
+    alert("Product added for all users!");
+  };
+  reader.readAsDataURL(fileInput.files[0]);
+}
+
+function renderAdminProducts(){
+  const adminProductsGrid=document.getElementById("adminProductsGrid");
+  const products=JSON.parse(localStorage.getItem(PRODUCTS_KEY))||[];
+  adminProductsGrid.innerHTML="";
+  products.forEach(p=>{
+    const div=document.createElement("div");
+    div.innerHTML=`<p>${p.name} - $${p.price}</p>`;
+    adminProductsGrid.appendChild(div);
+  });
+}
+
+// ====== Activity Logging ======
+function logActivity(action){
+  const username=localStorage.getItem("DSA_CURRENT_USER");
+  if(!username)return;
+  let activities=JSON.parse(localStorage.getItem(ACTIVITIES_KEY))||{};
+  if(!activities[username])activities[username]=[];
+  activities[username].push({action,timestamp:new Date().toLocaleString()});
+  localStorage.setItem(ACTIVITIES_KEY,JSON.stringify(activities));
+  renderUserActivities(username);
+  renderAdminActivities();
+}
+
+function renderUserActivities(username){
+  const ordersGrid=document.getElementById("ordersGrid");
+  const offersGrid=document.getElementById("offersGrid");
+  const activities=JSON.parse(localStorage.getItem(ACTIVITIES_KEY))||{};
+  const userActs=activities[username]||[];
+  ordersGrid.innerHTML="";
+  offersGrid.innerHTML="";
+  userActs.forEach(a=>{
+    if(a.action.includes("Order")) ordersGrid.innerHTML+=`<p>${a.timestamp} - ${a.action}</p>`;
+    if(a.action.includes("Offer")) offersGrid.innerHTML+=`<p>${a.timestamp} - ${a.action}</p>`;
+  });
+}
+
+function renderAdminActivities(){
+  const adminOffersGrid=document.getElementById("adminOffersGrid");
+  const activities=JSON.parse(localStorage.getItem(ACTIVITIES_KEY))||{};
+  adminOffersGrid.innerHTML="";
+  Object.keys(activities).forEach(user=>{
+    activities[user].forEach(act=>{
+      adminOffersGrid.innerHTML+=`<p><strong>${user}</strong>: ${act.timestamp} - ${act.action}</p>`;
+    });
+  });
+}
+
+// ====== Offers ======
+function makeOffer(productName,price){
+  const username=localStorage.getItem("DSA_CURRENT_USER");
+  logActivity(`Offer on ${productName} for $${price}`);
+  alert(`Offer submitted on ${productName}`);
+}
+
+// ====== Chat ======
+function sendChat(){
+  const username=localStorage.getItem("DSA_CURRENT_USER");
+  const message=document.getElementById("chatInput").value.trim();
+  if(!message)return;
+  let chats=JSON.parse(localStorage.getItem(CHATS_KEY))||{};
+  if(!chats[username])chats[username]=[];
+  chats[username].push({sender:username,message,timestamp:new Date().toLocaleTimeString()});
+  localStorage.setItem(CHATS_KEY,JSON.stringify(chats));
+  logActivity(`Sent chat message: "${message}"`);
+  document.getElementById("chatInput").value="";
+  renderUserChat();
+}
+
+function renderUserChat(){
+  const username=localStorage.getItem("DSA_CURRENT_USER");
+  const chatContainer=document.getElementById("chatContainer");
+  const chats=JSON.parse(localStorage.getItem(CHATS_KEY))||{};
+  chatContainer.innerHTML="";
+  if(!chats[username])return;
+  chats[username].forEach(c=>{
+    const div=document.createElement("div");
+    div.className=c.sender===username?"chat-message user":"chat-message admin";
+    div.innerHTML=`<strong>${c.sender}:</strong> ${c.message} <span class="time">${c.timestamp}</span>`;
+    chatContainer.appendChild(div);
+  });
+  chatContainer.scrollTop=chatContainer.scrollHeight;
+}
+
+function renderAdminChat(){
+  const select=document.getElementById("adminChatUserSelect");
+  const username=select.value;
+  const chatContainer=document.getElementById("adminChatContainer");
+  const chats=JSON.parse(localStorage.getItem(CHATS_KEY))||{};
+  chatContainer.innerHTML="";
+  if(!username||!chats[username])return;
+  chats[username].forEach(c=>{
+    const div=document.createElement("div");
+    div.className=c.sender==="admin"?"chat-message admin":"chat-message user";
+    div.innerHTML=`<strong>${c.sender}:</strong> ${c.message} <span class="time">${c.timestamp}</span>`;
+    chatContainer.appendChild(div);
+  });
+  chatContainer.scrollTop=chatContainer.scrollHeight;
+}
+
+function adminSendChat(){
+  const select=document.getElementById("adminChatUserSelect");
+  const username=select.value;
+  const message=document.getElementById("adminChatInput").value.trim();
+  if(!username||!message)return alert("Select user and type message");
+  let chats=JSON
